@@ -12,6 +12,10 @@ class PromiseModes:
     #This is so we can have enum like references (eg: PromiseModes.Client)
 
 class PromiseDefinition:
+    def __init__(self, promise_name, promise_manager_name="DEFAULT"):
+        #This method registers the promise by default
+        PromiseManager.static_register_promise(promise_manager_name, promise_name, self)
+
     def client_action(self, **kw):
         print("This is an undefined client_action")
 
@@ -32,10 +36,7 @@ class PromiseManager:
         self.mode = mode
 
     def is_namespace_taken(self):
-        if self.manager_name in self.TAKEN_NAMESPACES:
-            return True
-        else:
-            return False
+        return PromiseManager.static_is_namespace_taken(self.manager_name)
 
     def register_promise(self, name, promise_object):
         self.KNOWN_PROMISES[("%s:%s"%(self.manager_name, name))] = promise_object
@@ -80,3 +81,14 @@ class PromiseManager:
             return self.ENVIRONMENT_VARIABLES[namespace]
         else:
             return None
+
+    @staticmethod
+    def static_is_namespace_taken(manager_name):
+        if manager_name in PromiseManager.TAKEN_NAMESPACES:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def static_register_promise(manager_name, name, promise_object):
+        PromiseManager.KNOWN_PROMISES[("%s:%s"%(manager_name, name))] = promise_object
